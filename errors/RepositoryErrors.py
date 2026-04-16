@@ -1,0 +1,4 @@
+class RepositoryErrors:
+    DIRECTORY_NOT_EXIST = 200
+    INVALID_FILE_FORMAT = 201
+    FILE_NOT_EXIST = 202
