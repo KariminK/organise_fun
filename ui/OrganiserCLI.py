@@ -74,7 +74,7 @@ class OrganiserCLI:
                 answer = self.input("You don't have any group. Would you like to create one now? (Y/N): ")
                 if answer.upper() == "Y": 
                     self.create_group()
-                    break
+                    return;
         
         self.print_groups(groups)
         

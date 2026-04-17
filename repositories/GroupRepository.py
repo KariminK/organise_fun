@@ -10,6 +10,7 @@ class GroupRepository:
         self.file_path = os.path.join(self.dir_path, "lessons.of")
     def set_group_path(self, group: Group):
         self.dir_path = os.path.join(self.dir_path, f"grupa_{group.safe_name()}")
+        self.file_path = os.path.join(self.dir_path, "lessons.of")
     def create_lesson(self, lesson: Lesson):
         with open(self.file_path, "a") as f:
             f.write(f"{lesson.name};{lesson.created_at};ONGOING;{lesson.material_number}\n")
