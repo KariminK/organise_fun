@@ -11,6 +11,7 @@ class GroupRepository:
     def set_group_path(self, group: Group):
         self.dir_path = os.path.join(self.dir_path, f"grupa_{group.safe_name()}")
         self.file_path = os.path.join(self.dir_path, "lessons.of")
+    
     def select_lesson(self, lesson_name):
         with open(self.file_path) as f:
             for lesson_line in f:
@@ -40,7 +41,6 @@ class GroupRepository:
                     f.write(f"{new_lesson.name};{new_lesson.created_at};{new_lesson.ended_at};{new_lesson.material_number}\n")
                 else:
                     f.write(lesson_line)
-
     def delete_lesson(self, lesson: Lesson):
         lesson_path = os.path.join(self.dir_path, "lekcje", lesson.safe_name())
         if not os.path.exists(lesson_path):

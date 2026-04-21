@@ -32,6 +32,11 @@ class OrganiserCLI:
         print("\\cg - create group")
         print("-"*50)
         print()
+        print("students".center(50, "-"))
+        print("\\ls - prints students in current group ")
+        print("\\as - add student to current group")
+        print("-"*50)
+        print()
         print("lessons".center(50, "-"))
         print("\\ll - prints lessons in current group")
         print("\\cl - creates lesson in current group")
@@ -44,6 +49,7 @@ class OrganiserCLI:
         print("projects".center(50, "-"))
         print("\\lp - prints projects in current group")
         print("\\cp - creates project in current group")
+        print("\\asp [project_name] - add student to project")
         print("\\opnf [project_name] - opens teacher's project directory in File Explorer")
         print("\\opsf [project_name] [student_name] - opens student's project directory in File Explorer")
         print("-"*50)
@@ -55,6 +61,7 @@ class OrganiserCLI:
         print()
 
     def print_groups(self, groups): 
+        if groups == RepositoryErrors.INVALID_FILE_FORMAT: return self.print("CRITICAL ERROR: Group file is corrupted")
         for i in range(len(groups)):
             print(f"({i}) {groups[i].name}")
 
@@ -65,6 +72,7 @@ class OrganiserCLI:
             self.print("Group name must be at least 3 characters length")
         if result == True:
             self.print(f"Group {group_name} created successfully")
+            self.print("Now, select this group using \sg")
     
     def select_group(self):
         groups = self.organiser_service.list_groups()
@@ -92,6 +100,19 @@ class OrganiserCLI:
             selected_group = groups[index]
             self.group_service.set_group(selected_group)
             break
+
+    def add_student(self):
+        answer = self.input("Enter student name: ")
+        result = self.organiser_service.add_student(self.group_service.group.name, answer)
+        if result == OrganiserServiceErrors.GROUP_NAME_TOO_SHORT:
+            self.print("Provided name is too short")
+        elif result == RepositoryErrors.INVALID_FILE_FORMAT:
+            self.print("CRITICAL ERROR! groups file is corrupted")
+    def list_students(self):
+        students = self.organiser_service.list_students(self.group_service.group.name)
+        if students == RepositoryErrors.INVALID_FILE_FORMAT: return self.print("CRITICAL ERROR! groups file is corrupted")
+        for student in students:
+            print(student)
 
     def create_lesson(self):
         lesson_name = self.input("Enter lesson name: ")
@@ -130,9 +151,13 @@ class OrganiserCLI:
         result = self.group_service.end_lesson(lesson_name)
 
         if result == GroupErrors.INVALID_LESSON_NAME:
-            self.print("Invalid lesson name provided")
+            self.print(f"Lesson name '{lesson_name}' is invalid")
+        elif result == RepositoryErrors.INVALID_FILE_FORMAT:
+            self.print("CRITICAL ERROR! LESSON FILE IS CORRUPTED!")
+        elif result == RepositoryErrors.NOT_FOUND:
+            self.print(f"Lesson {lesson_name} not found!")
         else:
-            self.print("Lesson deleted successfully")
+            self.print(f"Lesson {lesson_name} ended successfully")
 
     def list_lessons(self):
         lessons = self.group_service.list_lessons()
@@ -141,7 +166,7 @@ class OrganiserCLI:
             self.print("CRITICAL ERROR! LESSON FILE IS CORRUPTED!")
             return
         elif lessons == RepositoryErrors.FILE_NOT_EXIST:
-            self.print("Lessons file doesn't exist!")
+            self.print("Lessons file doesn't exist! Create one by creating first lesson using \\cl")
             return
         if len(lessons) == 0:
             self.print("<No lessons to display>")
@@ -161,7 +186,9 @@ class OrganiserCLI:
         
         lesson_name = " ".join(splitted_answer[1:])
 
-        self.group_service.open_in_file(lesson_name)
+        result = self.group_service.open_in_file(lesson_name)
+        if result == RepositoryErrors.NOT_FOUND:
+            self.print(f"Lesson {lesson_name} not found!")
 
     def open_lesson_in_vs(self, answer):
         splitted_answer = answer.strip().split(" ")
@@ -172,7 +199,9 @@ class OrganiserCLI:
         
         lesson_name = " ".join(splitted_answer[1:])
 
-        self.group_service.open_in_vs(lesson_name)
+        result = self.group_service.open_in_vs(lesson_name)
+        if result == RepositoryErrors.NOT_FOUND:
+            self.print(f"Lesson {lesson_name} not found!")
     
     def exec_system(self, answer):
         splitted_answer = answer.split(" ")
@@ -203,7 +232,11 @@ class OrganiserCLI:
             elif not self.group_service.group:
                 self.print("You have to select group by using \"\\sg\" first!")
                 continue
-            if answer == "\\cl":
+            if answer == "\\as":
+                self.add_student()
+            elif answer == "\\ls":
+                self.list_students()
+            elif answer == "\\cl":
                 self.create_lesson()
             elif answer == "\\ll":
                 self.list_lessons()
