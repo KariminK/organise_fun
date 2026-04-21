@@ -2,6 +2,8 @@ from data.Group import Group
 from data.Lesson import Lesson
 from errors.GroupServiceErrors import GroupErrors
 from repositories.GroupRepository import GroupRepository
+from errors.RepositoryErrors import RepositoryErrors
+import datetime
 
 def is_float(string):
     try:
@@ -34,14 +36,36 @@ class GroupService:
         
         return result
     
-    def list_lessons(self):
-        result = self.repository.load_lessons()
+    def end_lesson(self, lesson_name):
+        if len(lesson_name) < 3: return GroupErrors.INVALID_LESSON_NAME
 
-        return result
+        lesson = self.repository.select_lesson(lesson_name)
+        
+        if lesson == RepositoryErrors.NOT_FOUND:
+            return RepositoryErrors.NOT_FOUND
+        
+        return self.repository.change_lesson_status(lesson_name, datetime.date.today())
+        
+        
+    
+    def list_lessons(self):
+        return self.repository.load_lessons()
     
     def open_in_file(self, lesson_name):
-        result = self.repository.open_lesson_in_f(Lesson(lesson_name, "", "", ""))
-        return result
+        if len(lesson_name) < 3: return GroupErrors.INVALID_LESSON_NAME
+
+        lesson = self.repository.select_lesson(lesson_name)
+        
+        if lesson == RepositoryErrors.NOT_FOUND:
+            return RepositoryErrors.NOT_FOUND
+                
+        return self.repository.open_lesson_in_f(lesson)
+    
     def open_in_vs(self, lesson_name):
-        result = self.repository.open_lesson_in_vs(Lesson(lesson_name, "", "", ""))
-        return result
+        if len(lesson_name) < 3: return GroupErrors.INVALID_LESSON_NAME
+
+        lesson = self.repository.select_lesson(lesson_name)
+        
+        if lesson == RepositoryErrors.NOT_FOUND:
+            return RepositoryErrors.NOT_FOUND
+        return self.repository.open_lesson_in_vs(lesson)

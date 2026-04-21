@@ -11,11 +11,36 @@ class GroupRepository:
     def set_group_path(self, group: Group):
         self.dir_path = os.path.join(self.dir_path, f"grupa_{group.safe_name()}")
         self.file_path = os.path.join(self.dir_path, "lessons.of")
+    def select_lesson(self, lesson_name):
+        with open(self.file_path) as f:
+            for lesson_line in f:
+                splitted_lesson = lesson_line.split(";")
+                if len(splitted_lesson) < 4: return RepositoryErrors.INVALID_FILE_FORMAT
+                name, created_at, ended_at, material_number = splitted_lesson
+                if name == lesson_name:
+                    return Lesson(name, created_at, ended_at, material_number)
+            return RepositoryErrors.NOT_FOUND
     def create_lesson(self, lesson: Lesson):
         with open(self.file_path, "a") as f:
             f.write(f"{lesson.name};{lesson.created_at};ONGOING;{lesson.material_number}\n")
         lesson_path = os.path.join(self.dir_path, "lekcje", lesson.safe_name())
         os.mkdir(lesson_path)
+    def change_lesson_status(self, lesson_name, end_date):
+        with open(self.file_path, "r+") as f:
+            lesson_lines = f.readlines()
+            f.seek(0)
+            for lesson_line in lesson_lines:
+                if not lesson_line.strip() or lesson_line == "":
+                    continue
+                splitted_lesson = lesson_line.strip().split(";")
+                if len(splitted_lesson) < 4: return RepositoryErrors.INVALID_FILE_FORMAT
+                name, created_at, _ended_at, material_number = splitted_lesson
+                if name == lesson_name:
+                    new_lesson = Lesson(name, created_at, end_date, material_number)
+                    f.write(f"{new_lesson.name};{new_lesson.created_at};{new_lesson.ended_at};{new_lesson.material_number}\n")
+                else:
+                    f.write(lesson_line)
+
     def delete_lesson(self, lesson: Lesson):
         lesson_path = os.path.join(self.dir_path, "lekcje", lesson.safe_name())
         if not os.path.exists(lesson_path):

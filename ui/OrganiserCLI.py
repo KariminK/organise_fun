@@ -36,6 +36,7 @@ class OrganiserCLI:
         print("\\ll - prints lessons in current group")
         print("\\cl - creates lesson in current group")
         print("\\dl [lesson_name] - deletes lesson in current group")
+        print("\\el [lesson_name] - mark lesson as ended in current group")
         print("\\ovs [lesson_name] - opens lesson directory in Visual Studio Code")
         print("\\of [lesson_name] - opens lesson directory in File Explorer")
         print("-"*50)
@@ -112,9 +113,26 @@ class OrganiserCLI:
             self.print("You must provide lesson name")
             return
         
-        lesson_name = splitted_answer[1]
+        lesson_name = " ".join(splitted_answer[1:])
+        print(lesson_name)
 
         self.group_service.delete_lesson(lesson_name)
+
+    def end_lesson(self, answer):
+        splitted_answer = answer.strip().split(" ")
+
+        if len(splitted_answer) < 2:
+            self.print("You must provide lesson name")
+            return
+        
+        lesson_name = " ".join(splitted_answer[1:])
+        
+        result = self.group_service.end_lesson(lesson_name)
+
+        if result == GroupErrors.INVALID_LESSON_NAME:
+            self.print("Invalid lesson name provided")
+        else:
+            self.print("Lesson deleted successfully")
 
     def list_lessons(self):
         lessons = self.group_service.list_lessons()
@@ -141,7 +159,7 @@ class OrganiserCLI:
             self.print("You must provide lesson name")
             return
         
-        lesson_name = splitted_answer[1]
+        lesson_name = " ".join(splitted_answer[1:])
 
         self.group_service.open_in_file(lesson_name)
 
@@ -152,7 +170,7 @@ class OrganiserCLI:
             self.print("You must provide lesson name")
             return
         
-        lesson_name = splitted_answer[1]
+        lesson_name = " ".join(splitted_answer[1:])
 
         self.group_service.open_in_vs(lesson_name)
     
@@ -161,7 +179,7 @@ class OrganiserCLI:
         if len(splitted_answer) < 2:
             self.print("Provide command to execute!")
             return
-        os.system(splitted_answer[1].strip())
+        os.system(" ".join(splitted_answer[1:]).strip())
 
     def run(self):
         os.system("clear")
@@ -191,6 +209,8 @@ class OrganiserCLI:
                 self.list_lessons()
             elif answer.startswith("\\dl"):
                 self.delete_lesson(answer)
+            elif answer.startswith("\\el"):
+                self.end_lesson(answer)
             elif answer.startswith("\\of"):
                 self.open_lesson_in_f(answer)
             elif answer.startswith("\\ovs"):
