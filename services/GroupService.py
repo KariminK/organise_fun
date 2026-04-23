@@ -45,12 +45,10 @@ class GroupService:
             return RepositoryErrors.NOT_FOUND
         
         return self.repository.change_lesson_status(lesson_name, datetime.date.today())
-        
-        
     
     def list_lessons(self):
         return self.repository.load_lessons()
-    
+
     def open_in_file(self, lesson_name):
         if len(lesson_name) < 3: return GroupErrors.INVALID_LESSON_NAME
 
@@ -60,7 +58,7 @@ class GroupService:
             return RepositoryErrors.NOT_FOUND
                 
         return self.repository.open_lesson_in_f(lesson)
-    
+
     def open_in_vs(self, lesson_name):
         if len(lesson_name) < 3: return GroupErrors.INVALID_LESSON_NAME
 

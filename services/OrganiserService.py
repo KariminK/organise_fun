@@ -13,7 +13,7 @@ class OrganiserService:
 
     def create_group(self, group_name):
         if len(group_name) < 3: return OrganiserServiceErrors.GROUP_NAME_TOO_SHORT
-        group = Group(group_name)
+        group = Group(group_name, [])
         return self.repository.create_group(group)
     
     def add_student(self, group_name, student_name):

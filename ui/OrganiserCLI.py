@@ -108,6 +108,9 @@ class OrganiserCLI:
             self.print("Provided name is too short")
         elif result == RepositoryErrors.INVALID_FILE_FORMAT:
             self.print("CRITICAL ERROR! groups file is corrupted")
+        else:
+            self.print(f"Student {result} added correctly!")
+
     def list_students(self):
         students = self.organiser_service.list_students(self.group_service.group.name)
         if students == RepositoryErrors.INVALID_FILE_FORMAT: return self.print("CRITICAL ERROR! groups file is corrupted")

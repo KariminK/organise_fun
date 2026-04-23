@@ -32,13 +32,11 @@ class OrganiserRepository:
                         f.write(f"{new_group.name};{",".join(new_group.student_names)}\n")
                     else:
                         f.write(f"{name};{student_name}\n")
+                    return student_name
                 else:
                     f.write(group_line)
 
     def load_students(self, group_name):
-        if not self.exists():
-            return []
-
         with open(self.file_path) as f:
             groups = []
             for group_line in f:
@@ -49,9 +47,6 @@ class OrganiserRepository:
                     return student_string.strip().split(",")
 
     def load_groups(self):
-        if not self.exists():
-            return []
-        
         with open(self.file_path) as f:
             groups = []
             for group_line in f:
@@ -60,6 +55,7 @@ class OrganiserRepository:
                 name, student_string = splitted_group
                 groups.append(Group(name, student_string.split(",")))
             return groups
+    
     def create_group(self, group: Group):
         with open(self.file_path, "a") as f:
             student_string = ",".join(group.student_names)
